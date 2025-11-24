@@ -6,6 +6,7 @@ from telegram import Update, InputFile, InlineKeyboardButton, InlineKeyboardMark
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes, CallbackQueryHandler
 import asyncio
 import io
+from flask import Flask
 
 # Configure logging
 logging.basicConfig(
@@ -18,6 +19,7 @@ logger = logging.getLogger(__name__)
 BOT_TOKEN = os.environ.get('BOT_TOKEN', "8089748380:AAEiufxHnXzSVZUFxGS6z-f0YSzbDL63ZtM")
 API_URL = "https://api.yabes-desu.workers.dev/ai/tool/txt2video"
 WELCOME_IMAGE_URL = "https://uploads.onecompiler.io/43sb938uw/43xc7jtk7/e54960e4-6f62-4dc2-9286-0385c4d7b9db.jpeg"
+PORT = int(os.environ.get('PORT', 10000))
 
 # Channel Configuration
 CHANNELS = [
@@ -391,8 +393,15 @@ async def error_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         except Exception as e:
             logger.error(f"Error in error handler: {e}")
 
-def main():
-    """Start the bot"""
+# Flask app for Render
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return "🤖 Telegram AI Video Bot is Running!"
+
+def run_bot():
+    """Run the bot in polling mode"""
     try:
         # Create the Application
         application = Application.builder().token(BOT_TOKEN).build()
@@ -410,11 +419,29 @@ def main():
         print("🤖 Bot is starting...")
         print("✅ Channel verification enabled")
         print("✅ Video generation ready")
-        application.run_polling(allowed_updates=Update.ALL_TYPES)
+        
+        # Use polling instead of webhook for simplicity
+        application.run_polling(
+            allowed_updates=Update.ALL_TYPES,
+            drop_pending_updates=True
+        )
         
     except Exception as e:
         logger.error(f"Failed to start bot: {e}")
         print(f"❌ Bot failed to start: {e}")
 
 if __name__ == '__main__':
-    main()
+    # Check if running on Render
+    if os.environ.get('RENDER'):
+        print("🚀 Starting on Render...")
+        # Run both Flask app and bot
+        from threading import Thread
+        bot_thread = Thread(target=run_bot)
+        bot_thread.daemon = True
+        bot_thread.start()
+        
+        # Run Flask app
+        app.run(host='0.0.0.0', port=PORT, debug=False)
+    else:
+        # Run locally
+        run_bot()

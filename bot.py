@@ -15,7 +15,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Bot Configuration - Environment Variables se le
-BOT_TOKEN = os.environ.get('BOT_TOKEN', "8089748380:AAFJHKWTbf48YIggloiJ0pvPw-Jyo_XGkq8")
+BOT_TOKEN = os.environ.get('BOT_TOKEN', "8089748380:AAEiufxHnXzSVZUFxGS6z-f0YSzbDL63ZtM")
 API_URL = "https://api.yabes-desu.workers.dev/ai/tool/txt2video"
 WELCOME_IMAGE_URL = "https://uploads.onecompiler.io/43sb938uw/43xc7jtk7/e54960e4-6f62-4dc2-9286-0385c4d7b9db.jpeg"
 
